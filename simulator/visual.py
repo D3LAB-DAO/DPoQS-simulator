@@ -25,7 +25,7 @@ def multi_draw(
         for i, y in enumerate(ys):
             ax.plot(x, y, linewidth=2.0, label=legends[i])
 
-        fig.legend(loc='upper center', ncol=len(legends))
+        fig.legend(loc='upper center', ncol=4)
     else:
         for i, y in enumerate(ys):
             ax.plot(x, y, linewidth=2.0)
@@ -72,7 +72,7 @@ def multi_draw_axis_2(
 
         fig.legend(
             handles=ps + [p2],
-            loc='upper center', ncol=len(legends)
+            loc='upper center', ncol=4
         )
     else:
         for i, y1 in enumerate(y1s):
@@ -89,7 +89,6 @@ def multi_draw_axis_2(
         plt.show()
     if save:
         plt.savefig("plots/" + name, dpi=dpi)
-
 
 
 def multi_draw_axis_3(
@@ -128,7 +127,7 @@ def multi_draw_axis_3(
 
         fig.legend(
             handles=ps + [p2, p3],
-            loc='upper center', ncol=len(legends)
+            loc='upper center', ncol=4
         )
     else:
         for i, y1 in enumerate(y1s):

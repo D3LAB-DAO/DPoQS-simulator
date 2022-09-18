@@ -3,11 +3,14 @@ import numpy as np
 import csv
 
 
-def multi_logs(name: str, x, ys, legends=None):
+def multi_logs(name: str, x, ys, legends=None, transposed=True):
     with open("logs/" + name + ".csv", "w", newline='') as f:
         wr = csv.writer(f)
 
-        yts = np.array(ys).T
+        if transposed:
+            yts = np.array(ys).T
+        else:
+            yts = np.array(ys)
 
         if legends is not None:
             wr.writerow(["block"] + legends)

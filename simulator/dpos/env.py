@@ -4,7 +4,7 @@ import numpy as np
 from agent import *
 
 
-class PosEnv:
+class EnvDpos:
     def __init__(
         self,
         numValidator: int,
@@ -18,21 +18,19 @@ class PosEnv:
         InflationMax: float = None,
         InflationMin: float = None,
         cost: float = 0.,
-        step: int = 52596,
-        agent_step: int = 5000  # TODO
+        step: int = 52596
     ):
         # https://docs.cosmos.network/v0.46/modules/mint/03_begin_block.html
 
         # init & changable
         self.bondedAmount = bondedRatio * TotalSupply
         self.stakingRatio = stakingRatio
-
         self.numValidator = numValidator
+
         init_wealthes = self._dist_validators(numValidator, self.bondedAmount)
         self._agents = list()
         for init_wealth in init_wealthes:
-            self._agents.append(AgentPos(wealth=init_wealth, cost=cost, step=agent_step))
-        self._cost = cost
+            self._agents.append(AgentPos(wealth=init_wealth, cost=cost, step=step))
 
         # state
         self.Inflation = Inflation  # (%)
@@ -57,7 +55,7 @@ class PosEnv:
             s = s[s < upper]  # kill outliers
         s /= sum(s)
         s *= amount
-        return np.sort(s)[::-1]  # TODO: floating errors
+        return s  # TODO: floating errors
 
     @property
     def validators(self) -> (np.array):
@@ -71,22 +69,6 @@ class PosEnv:
     @property
     def validator_histories(self):
         return [self._agents[i].history for i in range(self.numValidator)]
-
-    # def add_validator(self):
-    #     pass
-
-    # def remove_validator(self):
-    #     pass
-
-    @property
-    def cost(self):
-        return self._cost
-
-    @cost.setter
-    def cost(self, new_cost):
-        self._cost = new_cost
-        for i in range(self.numValidator):
-            self._agents[i].cost = new_cost
 
     """Env"""
 
@@ -237,7 +219,7 @@ class PosEnv:
 
 
 if __name__ == "__main__":
-    env = PosEnv(
+    env = EnvPos(
         10,  # numValidator
         0.5,  # bondedRatio
         0.6,  # stakingRatio
