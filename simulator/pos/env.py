@@ -7,7 +7,7 @@ from agent import *
 class PosEnv:
     def __init__(
         self,
-        numValidator: int,
+        numValidators: int,
         bondedRatio: float,
         stakingRatio: float,
         Inflation: float,
@@ -18,20 +18,21 @@ class PosEnv:
         InflationMax: float = None,
         InflationMin: float = None,
         cost: float = 0.,
-        step: int = 52596,
-        agent_step: int = 5000  # TODO
+        step: int = 52596
     ):
+        # agent_step: int = 5000  # TODO
+
         # https://docs.cosmos.network/v0.46/modules/mint/03_begin_block.html
 
         # init & changable
         self.bondedAmount = bondedRatio * TotalSupply
         self.stakingRatio = stakingRatio
 
-        self.numValidator = numValidator
-        init_wealthes = self._dist_validators(numValidator, self.bondedAmount)
+        self.numValidators = numValidators
+        init_wealthes = self._dist_validators(numValidators, self.bondedAmount)
         self._agents = list()
         for init_wealth in init_wealthes:
-            self._agents.append(AgentPos(wealth=init_wealth, cost=cost, step=agent_step))
+            self._agents.append(AgentPos(wealth=init_wealth, cost=cost))  # TODO: cost dist.
         self._cost = cost
 
         # state
@@ -61,16 +62,12 @@ class PosEnv:
 
     @property
     def validators(self) -> (np.array):
-        return np.array([self._agents[i].wealth for i in range(self.numValidator)])
+        return np.array([self._agents[i].wealth for i in range(self.numValidators)])
 
     @validators.setter
     def validators(self, newValidators: np.array):
-        for i in range(self.numValidator):
-            self._agents[i].wealth_cost = newValidators[i]
-
-    @property
-    def validator_histories(self):
-        return [self._agents[i].history for i in range(self.numValidator)]
+        for i in range(self.numValidators):
+            self._agents[i].wealth = newValidators[i] - self._agents[i].cost
 
     # def add_validator(self):
     #     pass
@@ -85,7 +82,7 @@ class PosEnv:
     @cost.setter
     def cost(self, new_cost):
         self._cost = new_cost
-        for i in range(self.numValidator):
+        for i in range(self.numValidators):
             self._agents[i].cost = new_cost
 
     """Env"""
@@ -101,8 +98,6 @@ class PosEnv:
     def setStep(self, _newStep: int):
         # TODO: setter
         self.step = _newStep
-        for i in range(self.numValidator):
-            self._agents[i].step = _newStep
 
     """Transition"""
 
@@ -238,7 +233,7 @@ class PosEnv:
 
 if __name__ == "__main__":
     env = PosEnv(
-        10,  # numValidator
+        10,  # numValidators
         0.5,  # bondedRatio
         0.6,  # stakingRatio
         0.1,  # Inflation
@@ -251,7 +246,6 @@ if __name__ == "__main__":
     print(env.TotalSupply)
     print(env.bondedAmount)
     print(env.nakamoto_coefficient)
-    print(env._agents[0].history)
 
     env.transition(400000)
     print("")
@@ -261,4 +255,3 @@ if __name__ == "__main__":
     print(env.TotalSupply)
     print(env.bondedAmount)
     print(env.nakamoto_coefficient)
-    print(env._agents[0].history)

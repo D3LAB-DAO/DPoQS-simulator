@@ -43,7 +43,7 @@ def curses_status(r: int):
     def curses_status_1_validator():
         y = 0
         stdscr.addstr(y, 0, "Validator", curses.color_pair(Color.CYAN.value) | curses.A_BOLD); y += 1
-        curses_addstr_helper(y, 0, "numValidator", env.numValidator, prefix="    "); y += 1
+        curses_addstr_helper(y, 0, "numValidators", env.numValidators, prefix="    "); y += 1
         curses_addstr_helper(y, 0, "cost", env.cost, prefix="    "); y += 1
         curses_addstr_helper(y, 0, "Nakamoto Coef", env.nakamoto_coefficient, prefix="    ", color=Color.YELLOW); y += 1
 
@@ -223,7 +223,7 @@ def curses_execute(keys: list):
                 "nakamotoCoef",
                 "totalSupply"
             ],
-            legends=["agent_" + str(i) for i in range(env.numValidator)] + ["nakamotoCoef", "totalSupply"],
+            legends=["agent_" + str(i) for i in range(env.numValidators)] + ["nakamotoCoef", "totalSupply"],
             dpi=dpi,
             save=True
         )
@@ -267,7 +267,7 @@ def curses_execute(keys: list):
             keys[1] + "_agents",  # name
             blockNumbers,  # x
             validators,  # ys
-            legends=["agent_" + str(i) for i in range(env.numValidator)],
+            legends=["agent_" + str(i) for i in range(env.numValidators)],
             transposed=False
         )
 
