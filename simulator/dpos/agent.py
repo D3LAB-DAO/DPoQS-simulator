@@ -1,94 +1,124 @@
-class AgentDpos:
-    # global class_id
-    # class_id = 0
+from typing import List
 
+
+class WeightedEdge:
     def __init__(
         self,
-        is_validator: bool,
-        wealth: float = 0.,
-        cost: float = 0.,
-        step: int = 10
+        from_: int,
+        to_: int,
+        amount_: float
     ):
-        # self._id = AgentDpos.class_id; AgentDpos.class_id += 1
+        if from_ == to_:
+            raise ValueError
 
-        self.is_validator = is_validator  # True for Validator, False for Delegator
+        self._from = from_
+        self._to = to_
+        self.amount = amount_
 
-        self._wealth = wealth
-        self._delegated = 0.
-        self._history = [wealth]
-        self._cost = cost
 
-        self._round = 0
-        self._step = step
+class AgentDpos:
+    def __init__(
+        self,
+        is_validator: bool = True,
+        wealth: float = 0.,
+        delegates: List[WeightedEdge] = None,
+        delegatedes: List[WeightedEdge] = None,
+        commission_fee: float = 0.05,
+        validate_cost: float = 0.,
+        delegate_cost: float = 0.
+    ):
+        self.is_validator = is_validator  # True if validator, False if delegator
+        self.commission_fee = commission_fee
 
-    @property
-    def wealth(self):
-        return self._wealth
+        self.wealth = wealth
+        self._delegates: List[WeightedEdge] = delegates or list()
+        self._delegatedes: List[WeightedEdge] = delegatedes or list()
 
-    @wealth.setter
-    def wealth(self, amount):
-        self._round += 1
-
-        self._wealth = amount
-
-        if self._round % self._step == 0:
-            self._history.append(amount)
-
-    @wealth.setter
-    def wealth_cost(self, amount):
-        self._round += 1
-
-        self._wealth = amount
-        if self.is_validator:
-            self._wealth -= self._cost
-        else:
-            pass  # delegator has no cost
-
-        if self._round % self._step == 0:
-            self._history.append(amount)
+        self.validate_cost = validate_cost
+        self.delegate_cost = delegate_cost
 
     @property
-    def delegated(self):
-        return self._delegated
+    def delegates(self):
+        return [e.amount for e in self._delegates]
 
-    @wealth.setter
-    def wealth(self, amount):
-        self._round += 1
-
-        self._wealth = amount
-
-        if self._round % self._step == 0:
-            self._history.append(amount)
+    @delegates.setter
+    def delegates(self, new_delegates):
+        for i in range(len(self._delegates)):
+            self._delegates[i].amount = new_delegates[i]
 
     @property
-    def wealth_and_delegated(self):
-        return self._wealth + self._delegated
+    def delegatedes(self):
+        return [e.amount for e in self._delegatedes]
+
+    @delegatedes.setter
+    def delegatedes(self, new_delegatedes):
+        for i in range(len(self._delegatedes)):
+            self._delegatedes[i].amount = new_delegatedes[i]
 
     @property
-    def history(self):
-        return self._history
+    def total_delegate(self) -> (float):
+        r = 0.
+        for e in self._delegates:
+            r += e.amount
+        return r
 
     @property
-    def step(self):
-        return self._step
+    def total_delegated(self) -> (float):
+        r = 0.
+        for e in self._delegatedes:
+            r += e.amount
+        return r
 
-    @step.setter
-    def step(self, new_step):
-        self._step = new_step
+    @property
+    def power(self) -> (float):
+        return self.wealth - self.total_delegate + self.total_delegated
 
-    def delegate(self, to_):
-        # delegate all amount
-        self.wealth
+
+def delegate(from_: AgentDpos, to_: AgentDpos, amount_: float):
+    if from_ == to_:
+        raise ValueError
+
+    e = WeightedEdge(from_, to_, amount_)
+
+    if amount_ > (from_.wealth - from_.total_delegate):
+        raise ValueError
+
+    from_._delegates.append(e)
+
+    if from_.total_delegate > from_.wealth:
+        raise ValueError
+
+    to_._delegatedes.append(e)
+
+
+# for AI agents
+# def undelegate():
+#     pass
 
 
 if __name__ == "__main__":
-    agent = AgentDpos(100., is_validator=True)
+    agent_1 = AgentDpos(wealth=100.)
+    agent_2 = AgentDpos(wealth=400.)
+    print("===")
+    print(agent_1.wealth, agent_1.total_delegate, agent_1.total_delegated, agent_1.power)
+    print(agent_2.wealth, agent_2.total_delegate, agent_2.total_delegated, agent_2.power)
 
-    print(agent.wealth)
-    print(agent.history)
+    delegate(agent_2, agent_1, 200.)
+    print("===")
+    print(agent_1.wealth, agent_1.total_delegate, agent_1.total_delegated, agent_1.power)
+    print(agent_2.wealth, agent_2.total_delegate, agent_2.total_delegated, agent_2.power)
 
-    for i in range(100):
-        agent.wealth = i
+    delegate(agent_2, agent_1, 100.)
+    print("===")
+    print(agent_1.wealth, agent_1.total_delegate, agent_1.total_delegated, agent_1.power)
+    print(agent_2.wealth, agent_2.total_delegate, agent_2.total_delegated, agent_2.power)
 
-    print(agent.wealth)
-    print(agent.history)
+    # ValueError
+    try:
+        delegate(agent_2, agent_1, 2000.)
+        print("===")
+        print(agent_1.wealth, agent_1.total_delegate, agent_1.total_delegated, agent_1.power)
+        print(agent_2.wealth, agent_2.total_delegate, agent_2.total_delegated, agent_2.power)
+    except (ValueError):
+        print("===")
+        print("ValueError!")

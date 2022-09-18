@@ -1,13 +1,17 @@
-from wsgiref.validate import validator
 import numpy as np
+from random import randint
+from typing import List
 
 from agent import *
 
 
-class EnvDpos:
+LIMIT_NUM_VALIDATORS = 21
+
+
+class DposEnv:
     def __init__(
         self,
-        numValidator: int,
+        numNodes: int,
         bondedRatio: float,
         stakingRatio: float,
         Inflation: float,
@@ -17,7 +21,10 @@ class EnvDpos:
         InflationRateChange: float = None,
         InflationMax: float = None,
         InflationMin: float = None,
-        cost: float = 0.,
+        nodes: List[AgentDpos] = None,
+        commission_fee: float = 0.05,
+        validate_cost: float = 0.,
+        delegate_cost: float = 0.,
         step: int = 52596
     ):
         # https://docs.cosmos.network/v0.46/modules/mint/03_begin_block.html
@@ -25,12 +32,28 @@ class EnvDpos:
         # init & changable
         self.bondedAmount = bondedRatio * TotalSupply
         self.stakingRatio = stakingRatio
-        self.numValidator = numValidator
 
-        init_wealthes = self._dist_validators(numValidator, self.bondedAmount)
-        self._agents = list()
-        for init_wealth in init_wealthes:
-            self._agents.append(AgentPos(wealth=init_wealth, cost=cost, step=step))
+        self.numNodes = numNodes
+        self._commission_fee = commission_fee
+        self._validate_cost = validate_cost
+        self._delegate_cost = delegate_cost
+
+        if nodes is not None:
+            self._nodes = nodes
+        else:
+            init_is_validators, init_wealthes = self._dist_nodes(self.numNodes, self.bondedAmount)
+            self._nodes: List[AgentDpos] = list()
+            for init_is_validator, init_wealth in zip(init_is_validators, init_wealthes):
+                self._nodes.append(
+                    AgentDpos(
+                        is_validator=init_is_validator,
+                        wealth=init_wealth,
+                        commission_fee=self.commission_fee,
+                        validate_cost=self.validate_cost,
+                        delegate_cost=self.delegate_cost
+                    )
+                )  # TODO: commission fee & cost dist.
+        self._delegate_nodes()
 
         # state
         self.Inflation = Inflation  # (%)
@@ -47,28 +70,91 @@ class EnvDpos:
         # options
         self.step = step
 
-    """Validators"""
+    """Nodes"""
 
-    def _dist_validators(self, size, amount, alpha=1.16, lower=1., upper=None):
+    def _dist_nodes(self, size, amount, alpha=1.16, lower=1., upper=None):
         s = np.random.pareto(alpha, size) + lower
         if upper != None:
             s = s[s < upper]  # kill outliers
         s /= sum(s)
         s *= amount
-        return s  # TODO: floating errors
+        _wealthes = np.sort(s)[::-1]  # TODO: floating errors
+
+        _is_validators = [True if i < LIMIT_NUM_VALIDATORS else False for i in range(self.numNodes)]
+
+        return _is_validators, _wealthes
+
+    def _delegate_nodes(self):
+        for i in range(LIMIT_NUM_VALIDATORS, self.numNodes):
+            delegate(
+                self._nodes[i],
+                self._nodes[randint(0, LIMIT_NUM_VALIDATORS - 1)],
+                self._nodes[i].wealth
+            )
+
+    @property
+    def relationship(self):
+        _r_delegatedes = list()
+        for i in range(self.numNodes):
+            if self._nodes[i].is_validator:
+                _r_delegatedes.append(self._nodes[i].delegatedes)
+        return _r_delegatedes
+
+    @property
+    def nodes(self):
+        return [self._nodes[i].wealth for i in range(self.numNodes)]
 
     @property
     def validators(self) -> (np.array):
-        return np.array([self._agents[i].wealth for i in range(self.numValidator)])
-
-    @validators.setter
-    def validators(self, newValidators: np.array):
-        for i in range(self.numValidator):
-            self._agents[i].wealth_cost = newValidators[i]
+        _validators = list()
+        for i in range(self.numNodes):
+            if self._nodes[i].is_validator:
+                _validators.append(self._nodes[i].wealth)
+        return np.array(_validators)
 
     @property
-    def validator_histories(self):
-        return [self._agents[i].history for i in range(self.numValidator)]
+    def powers(self) -> (np.array):
+        _power = list()
+        for i in range(self.numNodes):
+            if self._nodes[i].is_validator:
+                _power.append(self._nodes[i].power)
+        return np.array(_power)
+
+    # def add_validator(self):
+    #     pass
+
+    # def remove_validator(self):
+    #     pass
+
+    @property
+    def commission_fee(self):
+        return self._commission_fee
+
+    @commission_fee.setter
+    def commission_fee(self, new_commission_fee):
+        self._commission_fee = new_commission_fee
+        for i in range(self._nodes):
+            self._nodes[i].commission_fee = new_commission_fee
+
+    @property
+    def validate_cost(self):
+        return self._validate_cost
+
+    @validate_cost.setter
+    def validate_cost(self, new_validate_cost):
+        self._validate_cost = new_validate_cost
+        for i in range(self._nodes):
+            self._nodes[i].validate_cost = new_validate_cost
+
+    @property
+    def delegate_cost(self):
+        return self._delegate_cost
+
+    @delegate_cost.setter
+    def delegate_cost(self, new_delegate_cost):
+        self._delegate_cost = new_delegate_cost
+        for i in range(self._nodes):
+            self._nodes[i].delegate_cost = new_delegate_cost
 
     """Env"""
 
@@ -83,8 +169,6 @@ class EnvDpos:
     def setStep(self, _newStep: int):
         # TODO: setter
         self.step = _newStep
-        for i in range(self.numValidator):
-            self._agents[i].step = _newStep
 
     """Transition"""
 
@@ -125,6 +209,29 @@ class EnvDpos:
         # Calculate the provisions generated for each block based on current annual provisions.
         return self.NextAnnualProvision / self.BlocksPerYr
 
+    def update_powers(self, validator_rewards: np.array):
+        j = 0
+        for i in range(self.numNodes):
+            if self._nodes[i].is_validator:
+                _total_amount = validator_rewards[j]; j += 1
+                _fee = _total_amount * self._nodes[i].commission_fee
+
+                _dist: np.array =\
+                    np.array([self._nodes[i].wealth] + self._nodes[i].delegatedes) /\
+                    (self._nodes[i].wealth + self._nodes[i].total_delegated) *\
+                    (_total_amount * (1. - self._nodes[i].commission_fee))  # TODO: floating errors
+
+                # my delegation
+                self._nodes[i].wealth += _fee
+                self._nodes[i].wealth += _dist[0]
+                self._nodes[i].wealth -= self._nodes[i].validate_cost
+
+                # delegators
+                self._nodes[i].delegatedes += _dist[1:]
+                for d, e in enumerate(self._nodes[i]._delegatedes):
+                    e._from.wealth += _dist[d + 1]
+                    e._from.wealth -= e._from.delegate_cost
+
     def _mint_validators(self, amount):
         ratio = self.validators / sum(self.validators)
         return ratio * amount  # TODO: floating errors
@@ -139,7 +246,7 @@ class EnvDpos:
                 [self.blockNumber],
                 [self.NextAnnualProvision],
                 [self.BlockProvision],
-                [self.validators],
+                [self.nodes],
                 [self.nakamoto_coefficient]
             )
 
@@ -150,7 +257,7 @@ class EnvDpos:
         blockNumbers = list()
         annualProvisions = list()
         blockProvisions = list()
-        validators = list()
+        nodes = list()
         nakamotoCoef = list()
 
         for b in range(blocks):
@@ -160,11 +267,13 @@ class EnvDpos:
 
             # transition
             self.Inflation = inflation
-            _stakingAmount = blockProvision * self.stakingRatio
+            _stakingAmount = blockProvision * self.stakingRatio  # TODO: each
             self.bondedAmount += _stakingAmount
             self.TotalSupply += blockProvision
             self.blockNumber += 1
-            self.validators += self._mint_validators(_stakingAmount)
+            self.update_powers(
+                np.array(self._mint_validators(_stakingAmount))
+            )
 
             # log
             if self.blockNumber % self.step == 0:
@@ -178,7 +287,7 @@ class EnvDpos:
                 annualProvisions.append(annualProvision)
                 blockProvisions.append(blockProvision)
 
-                validators.append(e[5])
+                nodes.append(e[5])
                 nakamotoCoef.append(e[6])
         return (
             bondedAmounts,
@@ -188,7 +297,7 @@ class EnvDpos:
             blockNumbers,
             annualProvisions,
             blockProvisions,
-            validators,
+            nodes,
             nakamotoCoef
         )
 
@@ -200,7 +309,7 @@ class EnvDpos:
             self.TotalSupply,
             self.blockNumber,
 
-            self.validators,
+            self.nodes,
             self.nakamoto_coefficient
         )
 
@@ -208,7 +317,7 @@ class EnvDpos:
 
     @property
     def nakamoto_coefficient(self):
-        sorted_validators = np.sort(self.validators)[::-1]
+        sorted_validators = np.sort(self.validators)[::-1]  # validators only
         for i in range(1, len(sorted_validators) + 1):
             # print(i, sum(sorted_validators[:i]))
             if sum(sorted_validators[:i]) > (self.bondedAmount / 3):
@@ -219,28 +328,38 @@ class EnvDpos:
 
 
 if __name__ == "__main__":
-    env = EnvPos(
-        10,  # numValidator
+    env = DposEnv(
+        50,  # numNodes
         0.5,  # bondedRatio
         0.6,  # stakingRatio
         0.1,  # Inflation
         1000000000,  # TotalSupply
-        cost=0.3
+        validate_cost=0.3,  # validate_cost
+        delegate_cost=0.01  # delegate_cost
     )
 
-    # print(env.validators)
-    print(sum(env.validators))
-    print(env.TotalSupply)
-    print(env.bondedAmount)
+    # print(env.TotalSupply)
+    # print(env.bondedAmount)
     print(env.nakamoto_coefficient)
-    print(env._agents[0].history)
+    # print("-" * 40)
+    print(sum(env.powers))
+    print(sum(env.validators))
+    # print("-" * 40)
+    # print(env.nodes)
+    # print(sum(env.nodes))
+    # print("=" * 40)
+
+    env.update_powers(
+        np.array([100000000 for _ in range(len(env.validators))])
+    )
 
     env.transition(400000)
     print("")
 
-    # print(env.validators)
-    print(sum(env.validators))
-    print(env.TotalSupply)
-    print(env.bondedAmount)
     print(env.nakamoto_coefficient)
-    print(env._agents[0].history)
+    print(sum(env.powers))
+    print(sum(env.validators))
+    # print("-" * 40)
+    # print(env.nodes)
+    # print(sum(env.nodes))
+    # print("=" * 40)
