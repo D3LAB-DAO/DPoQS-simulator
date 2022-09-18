@@ -1,3 +1,21 @@
+# TODO
+
+- cost norm dist.
+
+# Concept
+
+- Monopoly Cost for Decentralization - Nakamoto Coef
+- Quadratic Funding: More support, more reward - 
+
+# Features
+
+- Delegate to same validator more than one is unavailable
+- Self-delegating is unavailable
+
+# Discussion
+
+- Identity
+
 <!--
 # How to Use
 
@@ -49,4 +67,13 @@ Save `test_provs.csv` and `test_state.csv` files in `logs/`.
 ```
 
 Save `test_provs.png` and `test_state.png` files in `plots/`.
+
+# TODO
+- N step: for loop -> one transition
+- Console mode
+- Genesis JSON
+- Exception handling
+- Supernova
+    - Distributions
+- x-axis w/ time (d/m/y)
 -->
