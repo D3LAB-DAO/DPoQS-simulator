@@ -211,19 +211,22 @@ def curses_execute(keys: list):
             save=True
         )
 
-        multi_draw_axis_3(
+        multi_draw(
             keys[1] + "_agents",  # name
             blockNumbers,  # x
-            np.array(validators).T,  # y1s
-            nakamotoCoefs,  # y2
-            totalSupplies,  # y3
+            np.array(validators).T,  # ys
             xlabel="blockNumbers",
-            ylabels=[
-                "amount",
-                "nakamotoCoef",
-                "totalSupply"
-            ],
-            legends=["agent_" + str(i) for i in range(env.numValidators)] + ["nakamotoCoef", "totalSupply"],
+            ylabel="amount",
+            dpi=dpi,
+            save=True
+        )
+
+        multi_draw(
+            keys[1] + "_coef",  # name
+            blockNumbers,  # x
+            [nakamotoCoefs],  # ys
+            xlabel="blockNumbers",
+            ylabel="nakamotoCoef",
             dpi=dpi,
             save=True
         )
@@ -273,6 +276,18 @@ def curses_execute(keys: list):
 
         # TODO: detailed agent history log through agent_step
 
+        multi_logs(
+            keys[1] + "_coef",  # name
+            blockNumbers,  # x
+            [
+                nakamotoCoefs
+            ],  # ys
+            legends=[
+                "nakamotoCoefs"
+            ]
+        )
+
+    # WIP: keys
 
 def curses_main():
     r = 0  # 0~2

@@ -1,5 +1,5 @@
-from wsgiref.validate import validator
 import numpy as np
+from typing import List
 
 from agent import *
 
@@ -17,6 +17,7 @@ class PosEnv:
         InflationRateChange: float = None,
         InflationMax: float = None,
         InflationMin: float = None,
+        agents: List[AgentPos] = None,
         cost: float = 0.,
         step: int = 52596
     ):
@@ -29,11 +30,15 @@ class PosEnv:
         self.stakingRatio = stakingRatio
 
         self.numValidators = numValidators
-        init_wealthes = self._dist_validators(numValidators, self.bondedAmount)
-        self._agents = list()
-        for init_wealth in init_wealthes:
-            self._agents.append(AgentPos(wealth=init_wealth, cost=cost))  # TODO: cost dist.
         self._cost = cost
+
+        if agents is not None:
+            self._agents = agents
+        else:
+            init_wealthes = self._dist_validators(self.numValidators, self.bondedAmount)
+            self._agents: List[AgentPos] = list()
+            for init_wealth in init_wealthes:
+                self._agents.append(AgentPos(wealth=init_wealth, cost=cost))  # TODO: cost dist.
 
         # state
         self.Inflation = Inflation  # (%)
