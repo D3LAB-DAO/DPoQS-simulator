@@ -247,7 +247,8 @@ class DposEnv:
                 [self.NextAnnualProvision],
                 [self.BlockProvision],
                 [self.nodes],
-                [self.nakamoto_coefficient]
+                [self.nakamoto_coefficient_power],
+                [self.nakamoto_coefficient_validator]
             )
 
         bondedAmounts = list()
@@ -258,7 +259,8 @@ class DposEnv:
         annualProvisions = list()
         blockProvisions = list()
         nodes = list()
-        nakamotoCoef = list()
+        nakamotoCoef_power = list()
+        nakamotoCoef_validator = list()
 
         for b in range(blocks):
             inflation = self.NextInflationRate
@@ -288,7 +290,8 @@ class DposEnv:
                 blockProvisions.append(blockProvision)
 
                 nodes.append(e[5])
-                nakamotoCoef.append(e[6])
+                nakamotoCoef_power.append(e[6])
+                nakamotoCoef_validator.append(e[7])
         return (
             bondedAmounts,
             stakingRatios,
@@ -298,7 +301,8 @@ class DposEnv:
             annualProvisions,
             blockProvisions,
             nodes,
-            nakamotoCoef
+            nakamotoCoef_power,
+            nakamotoCoef_validator
         )
 
     def status(self):
@@ -310,22 +314,34 @@ class DposEnv:
             self.blockNumber,
 
             self.nodes,
-            self.nakamoto_coefficient
+            self.nakamoto_coefficient_power,
+            self.nakamoto_coefficient_validator
         )
 
     """Fairness & Decentralization"""
 
     @property
-    def nakamoto_coefficient(self):
-        sorted_validators = np.sort(self.powers)[::-1]
-        for i in range(1, len(sorted_validators) + 1):
-            # print(i, sum(sorted_validators[:i]))
-            if sum(sorted_validators[:i]) > (self.bondedAmount / 3):
+    def nakamoto_coefficient_power(self):
+        # maybe same
+        sorted_powers = np.sort(self.powers)[::-1]
+        for i in range(1, len(sorted_powers) + 1):
+            # print(i, sum(sorted_powers[:i]))
+            if sum(sorted_powers[:i]) > (self.bondedAmount / 3):
                 return i
         return self.numNodes
 
     # @property
     # def (self):
+
+    @property
+    def nakamoto_coefficient_validator(self):
+        # maybe increase
+        sorted_validators = np.sort(self.validators)[::-1]
+        for i in range(1, len(sorted_validators) + 1):
+            # print(i, sum(sorted_validators[:i]))
+            if sum(sorted_validators[:i]) > (self.bondedAmount / 3):
+                return i
+        return self.numNodes
 
 
 if __name__ == "__main__":
@@ -341,7 +357,8 @@ if __name__ == "__main__":
 
     # print(env.TotalSupply)
     # print(env.bondedAmount)
-    print(env.nakamoto_coefficient)
+    print(env.nakamoto_coefficient_power)
+    print(env.nakamoto_coefficient_validator)
     # print("-" * 40)
     print(sum(env.powers))
     print(sum(env.validators))
@@ -357,7 +374,8 @@ if __name__ == "__main__":
     env.transition(400000)
     print("")
 
-    print(env.nakamoto_coefficient)
+    print(env.nakamoto_coefficient_power)
+    print(env.nakamoto_coefficient_validator)
     print(sum(env.powers))
     print(sum(env.validators))
     # print("-" * 40)

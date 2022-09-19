@@ -26,7 +26,8 @@ blockNumbers = list()
 annualProvisions = list()
 blockProvisions = list()
 nodes = list()
-nakamotoCoefs = list()
+nakamotoCoefs_power = list()
+nakamotoCoefs_validator = list()
 
 
 def curses_status(r: int):
@@ -46,7 +47,8 @@ def curses_status(r: int):
         curses_addstr_helper(y, 0, "numNodes", env.numNodes, prefix="    "); y += 1
         curses_addstr_helper(y, 0, "validate_cost", env.validate_cost, prefix="    "); y += 1
         curses_addstr_helper(y, 0, "delegate_cost", env.delegate_cost, prefix="    "); y += 1
-        curses_addstr_helper(y, 0, "Nakamoto Coef", env.nakamoto_coefficient, prefix="    ", color=Color.YELLOW); y += 1
+        curses_addstr_helper(y, 0, "Nakamoto Coef Powers", env.nakamoto_coefficient_power, prefix="    ", color=Color.YELLOW); y += 1
+        curses_addstr_helper(y, 0, "Nakamoto Coef Validators", env.nakamoto_coefficient_validator, prefix="    ", color=Color.YELLOW); y += 1
 
     def curses_status_2_predefined():
         y = 0
@@ -132,7 +134,8 @@ def execute_transition(amount: int):
     global annualProvisions
     global blockProvisions
     global nodes
-    global nakamotoCoefs
+    global nakamotoCoefs_power
+    global nakamotoCoefs_validator
 
     e = env.transition(amount)
     bondedAmounts += e[0]
@@ -143,7 +146,8 @@ def execute_transition(amount: int):
     annualProvisions += e[5]
     blockProvisions += e[6]
     nodes += e[7]
-    nakamotoCoefs += e[8]
+    nakamotoCoefs_power += e[8]
+    nakamotoCoefs_validator += e[9]
 
 
 def curses_execute(keys: list):
@@ -226,9 +230,10 @@ def curses_execute(keys: list):
         multi_draw(
             keys[1] + "_coef",  # name
             blockNumbers,  # x
-            [nakamotoCoefs],  # ys
+            [nakamotoCoefs_power, nakamotoCoefs_validator],  # ys
             xlabel="blockNumbers",
             ylabel="nakamotoCoef",
+            legends=["powers", "validators"],
             dpi=dpi,
             save=True
         )
@@ -281,15 +286,12 @@ def curses_execute(keys: list):
         multi_logs(
             keys[1] + "_coef",  # name
             blockNumbers,  # x
-            [
-                nakamotoCoefs
-            ],  # ys
-            legends=[
-                "nakamotoCoefs"
-            ]
+            [nakamotoCoefs_power, nakamotoCoefs_validator],  # ys
+            legends=["powers", "validators"]
         )
 
     # WIP: keys
+
 
 def curses_main():
     r = 0  # 0~2
