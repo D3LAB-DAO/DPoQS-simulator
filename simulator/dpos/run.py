@@ -11,7 +11,7 @@ from visual import *
 
 # env
 env = DposEnv(
-    10,
+    50,
     0.5, 0.6, 0.1, 1000000000,
     validate_cost=0.3, delegate_cost=0.01
 )

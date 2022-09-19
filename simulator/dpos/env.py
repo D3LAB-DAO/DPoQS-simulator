@@ -317,11 +317,12 @@ class DposEnv:
 
     @property
     def nakamoto_coefficient(self):
-        sorted_validators = np.sort(self.validators)[::-1]  # validators only
+        sorted_validators = np.sort(self.powers)[::-1]
         for i in range(1, len(sorted_validators) + 1):
             # print(i, sum(sorted_validators[:i]))
             if sum(sorted_validators[:i]) > (self.bondedAmount / 3):
                 return i
+        return self.numNodes
 
     # @property
     # def (self):

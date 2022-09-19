@@ -71,7 +71,7 @@ class AgentDpos:
 
     @property
     def power(self) -> (float):
-        return self.wealth - self.total_delegate + self.total_delegated
+        return 0 if not self.is_validator else self.wealth - self.total_delegate + self.total_delegated
 
 
 def delegate(from_: AgentDpos, to_: AgentDpos, amount_: float):

@@ -231,6 +231,7 @@ class PosEnv:
             # print(i, sum(sorted_validators[:i]))
             if sum(sorted_validators[:i]) > (self.bondedAmount / 3):
                 return i
+        return self.numNodes
 
     # @property
     # def (self):
