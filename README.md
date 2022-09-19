@@ -1,20 +1,24 @@
 # TODO
 
-- cost norm dist.
+- Simulation env init. (fix and save)
+- Cost norm dist.
+- Smart agents
 
 # Concept
 
-- Monopoly Cost for Decentralization - Nakamoto Coef
-- Quadratic Funding: More support, more reward - 
-
-# Features
-
-- Delegate to same validator more than one is unavailable
-- Self-delegating is unavailable
+- Monopoly Cost for Decentralization - Nakamoto Coef.
+- Quadratic Funding: More support, more reward
 
 # Discussion
 
 - Identity
+
+<!--
+# Detail
+
+- Delegate to same validator more than one is unavailable
+- Self-delegating is unavailable
+-->
 
 <!--
 # How to Use
