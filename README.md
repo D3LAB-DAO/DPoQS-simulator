@@ -1,3 +1,25 @@
+# Example
+
+|   | Validator 1 | Validator 2 | Validator 3 | 
+|---|---|---|---|
+|Stakings|[100]|[50, 50]|[10, 20, 30, 40]|
+|Power|$\sqrt{100}=10$|$\sqrt{50}+\sqrt{50}=14.1421$|$\sqrt{10}+\sqrt{20}+\sqrt{30}+\sqrt{40}=19.4362$|
+
+Let's say that there's a newly minted $100$ token here:
+
+* Validator 1 will receive $22.95$ tokens
+    * Delegator 1-1 ($100$) will receive $22.95$ tokens
+* Validator 2 will receive $32.45$ tokens
+    * Delegator 2-1 ($50$) will receive $16.225$ tokens
+    * Delegator 2-2 ($50$) will receive $16.225$ tokens
+* Validator 3 will receive $44.60$ tokens
+    * Delegator 3-1 ($10$) will receive $4.46$ tokens
+    * Delegator 3-2 ($20$) will receive $8.92$ tokens
+    * Delegator 3-3 ($30$) will receive $13.38$ tokens
+    * Delegator 3-4 ($40$) will receive $17.84$ tokens
+
+---
+
 # TODO
 
 - Simulation env init. (fix and save)
