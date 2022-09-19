@@ -1,4 +1,4 @@
-class AgentPos:
+class PosAgent:
     def __init__(
         self,
         wealth: float = 0.,
@@ -9,7 +9,7 @@ class AgentPos:
 
 
 if __name__ == "__main__":
-    agent = AgentPos(100.)
+    agent = PosAgent(100.)
 
     print(agent.wealth)
 

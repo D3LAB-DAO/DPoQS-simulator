@@ -21,7 +21,7 @@ class DposEnv:
         InflationRateChange: float = None,
         InflationMax: float = None,
         InflationMin: float = None,
-        nodes: List[AgentDpos] = None,
+        nodes: List[DposAgent] = None,
         commission_fee: float = 0.05,
         validate_cost: float = 0.,
         delegate_cost: float = 0.,
@@ -42,10 +42,10 @@ class DposEnv:
             self._nodes = nodes
         else:
             init_is_validators, init_wealthes = self._dist_nodes(self.numNodes, self.bondedAmount)
-            self._nodes: List[AgentDpos] = list()
+            self._nodes: List[DposAgent] = list()
             for init_is_validator, init_wealth in zip(init_is_validators, init_wealthes):
                 self._nodes.append(
-                    AgentDpos(
+                    DposAgent(
                         is_validator=init_is_validator,
                         wealth=init_wealth,
                         commission_fee=self.commission_fee,

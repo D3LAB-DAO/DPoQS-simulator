@@ -16,7 +16,7 @@ class WeightedEdge:
         self.amount = amount_
 
 
-class AgentDpos:
+class DposAgent:
     def __init__(
         self,
         is_validator: bool = True,
@@ -74,7 +74,7 @@ class AgentDpos:
         return 0 if not self.is_validator else self.wealth - self.total_delegate + self.total_delegated
 
 
-def delegate(from_: AgentDpos, to_: AgentDpos, amount_: float):
+def delegate(from_: DposAgent, to_: DposAgent, amount_: float):
     if from_ == to_:
         raise ValueError
 
@@ -97,8 +97,8 @@ def delegate(from_: AgentDpos, to_: AgentDpos, amount_: float):
 
 
 if __name__ == "__main__":
-    agent_1 = AgentDpos(wealth=100.)
-    agent_2 = AgentDpos(wealth=400.)
+    agent_1 = DposAgent(wealth=100.)
+    agent_2 = DposAgent(wealth=400.)
     print("===")
     print(agent_1.wealth, agent_1.total_delegate, agent_1.total_delegated, agent_1.power)
     print(agent_2.wealth, agent_2.total_delegate, agent_2.total_delegated, agent_2.power)

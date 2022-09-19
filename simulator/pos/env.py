@@ -17,7 +17,7 @@ class PosEnv:
         InflationRateChange: float = None,
         InflationMax: float = None,
         InflationMin: float = None,
-        agents: List[AgentPos] = None,
+        agents: List[PosAgent] = None,
         cost: float = 0.,
         step: int = 52596
     ):
@@ -36,9 +36,9 @@ class PosEnv:
             self._agents = agents
         else:
             init_wealthes = self._dist_validators(self.numValidators, self.bondedAmount)
-            self._agents: List[AgentPos] = list()
+            self._agents: List[PosAgent] = list()
             for init_wealth in init_wealthes:
-                self._agents.append(AgentPos(wealth=init_wealth, cost=cost))  # TODO: cost dist.
+                self._agents.append(PosAgent(wealth=init_wealth, cost=cost))  # TODO: cost dist.
 
         # state
         self.Inflation = Inflation  # (%)

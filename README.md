@@ -18,6 +18,8 @@ Let's say that there's a newly minted $100$ token here:
     * Delegator 3-3 ($30$) will receive $13.38$ tokens
     * Delegator 3-4 ($40$) will receive $17.84$ tokens
 
+<!-- more decentralizing -->
+
 ---
 
 # TODO
