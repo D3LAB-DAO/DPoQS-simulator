@@ -55,7 +55,9 @@ Save `test_provs.png` and `test_state.png` files in `plots/`.
 
 ---
 
-# Quadratic Staking Example
+# Quadratic Staking
+
+## Example
 
 |   | Validator 1 | Validator 2 | Validator 3 | 
 |---|---|---|---|
@@ -82,25 +84,25 @@ Let's say that there's a newly minted $100$ token here:
 
 <!-- effect: more decentralizing -->
 
----
-
-# Features
+## Features
 
 - Monopoly Cost for Decentralization - Represented as Nakamoto Coef.
 - Quadratic Funding: More support, more rewards.
 
-# Discussion
+## Discussion
 
 - Identity
 
-# Notes
+## Notes
 
 - Self-delegating is unavailable
 
+<!--
 # TODO
 
 - Cost norm dist.
 - Smart agents (AI)
+-->
 
 <!--
 # TODO?
