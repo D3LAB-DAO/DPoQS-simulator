@@ -2,10 +2,10 @@ class PosAgent:
     def __init__(
         self,
         wealth: float = 0.,
-        cost: float = 0.
+        validate_cost: float = 0.
     ):
         self.wealth = wealth
-        self.cost = cost
+        self.validate_cost = validate_cost
 
 
 if __name__ == "__main__":

@@ -120,6 +120,7 @@ def delegate(from_: DposAgent, to_: DposAgent, amount_: float):
     e = WeightedEdge(from_, to_, amount_)
 
     if amount_ > (from_.wealth - from_.total_delegate):
+        print(">>>", amount_, from_.wealth, from_.total_delegate)
         raise ValueError
 
     if (from_.is_delegate(to_) != None) and (from_.is_delegate(to_) == to_.is_delegated(from_)):

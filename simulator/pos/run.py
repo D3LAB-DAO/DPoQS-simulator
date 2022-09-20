@@ -13,7 +13,7 @@ from visual import *
 env = PosEnv(
     10,
     0.5, 0.6, 0.1, 1000000000,
-    cost=0.3
+    validate_cost=0.3
 )
 
 
@@ -43,8 +43,8 @@ def curses_status(r: int):
     def curses_status_1_validator():
         y = 0
         stdscr.addstr(y, 0, "Validator", curses.color_pair(Color.CYAN.value) | curses.A_BOLD); y += 1
-        curses_addstr_helper(y, 0, "numValidators", env.numValidators, prefix="    "); y += 1
-        curses_addstr_helper(y, 0, "cost", env.cost, prefix="    "); y += 1
+        curses_addstr_helper(y, 0, "numNodes", env.numNodes, prefix="    "); y += 1
+        curses_addstr_helper(y, 0, "validate_cost", env.validate_cost, prefix="    "); y += 1
         curses_addstr_helper(y, 0, "Nakamoto Coef", env.nakamoto_coefficient, prefix="    ", color=Color.YELLOW); y += 1
 
     def curses_status_2_predefined():
@@ -78,7 +78,7 @@ def curses_help():
         curses_help_addstr_helper(y, 0, "[N]", "nextBlocks", "<#_of_blocks>", prefix="    "); y += 1
         curses_help_addstr_helper(y, 0, "[B]", "bondedAmount", "<bonded_amount>", prefix="    "); y += 1
         curses_help_addstr_helper(y, 0, "[S]", "stakingRatio", "<%_of_staking_ratio>", prefix="    "); y += 1
-        curses_help_addstr_helper(y, 0, "[C]", "cost", "<amount>", prefix="    "); y += 1
+        curses_help_addstr_helper(y, 0, "[C]", "validate_cost", "<amount>", prefix="    "); y += 1
 
     def curses_help_1_logs():
         y = 0
@@ -161,7 +161,7 @@ def curses_execute(keys: list):
 
     elif key == 'c' or key == 'C':
         amount = float(keys[1])
-        env.cost = amount
+        env.validate_cost = amount
 
     elif key == 'p' or key == 'P':
         amount = float(keys[1])
@@ -274,7 +274,7 @@ def curses_execute(keys: list):
             keys[1] + "_agents",  # name
             blockNumbers,  # x
             validators,  # ys
-            legends=["agent_" + str(i) for i in range(env.numValidators)],
+            legends=["agent_" + str(i) for i in range(env.numNodes)],
             transposed=False
         )
 

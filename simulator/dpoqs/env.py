@@ -54,7 +54,7 @@ class DpoqsEnv:
                         delegate_cost=self.delegate_cost
                     )
                 )  # TODO: commission fee & cost dist.
-        self._init_delegate_nodes()
+            self._init_delegate_nodes()
 
         # state
         self.Inflation = Inflation  # (%)

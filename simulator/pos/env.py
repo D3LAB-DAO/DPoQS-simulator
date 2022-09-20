@@ -7,7 +7,7 @@ from .agent import *
 class PosEnv:
     def __init__(
         self,
-        numValidators: int,
+        numNodes: int,
         bondedRatio: float,
         stakingRatio: float,
         Inflation: float,
@@ -17,8 +17,8 @@ class PosEnv:
         InflationRateChange: float = None,
         InflationMax: float = None,
         InflationMin: float = None,
-        agents: List[PosAgent] = None,
-        cost: float = 0.,
+        nodes: List[PosAgent] = None,
+        validate_cost: float = 0.,
         step: int = 52596
     ):
         # agent_step: int = 5000  # TODO
@@ -29,16 +29,16 @@ class PosEnv:
         self.bondedAmount = bondedRatio * TotalSupply
         self.stakingRatio = stakingRatio
 
-        self.numValidators = numValidators
-        self._cost = cost
+        self.numNodes = numNodes
+        self._validate_cost = validate_cost
 
-        if agents is not None:
-            self._agents = agents
+        if nodes is not None:
+            self._nodes = nodes
         else:
-            init_wealthes = self._init_dist_validators(self.numValidators, self.bondedAmount)
-            self._agents: List[PosAgent] = list()
+            init_wealthes = self._init_dist_nodes(self.numNodes, self.bondedAmount)
+            self._nodes: List[PosAgent] = list()
             for init_wealth in init_wealthes:
-                self._agents.append(PosAgent(wealth=init_wealth, cost=cost))  # TODO: cost dist.
+                self._nodes.append(PosAgent(wealth=init_wealth, validate_cost=validate_cost))  # TODO: validate_cost dist.
 
         # state
         self.Inflation = Inflation  # (%)
@@ -57,7 +57,7 @@ class PosEnv:
 
     """Validators"""
 
-    def _init_dist_validators(self, size, amount, alpha=1.16, lower=1., upper=None):
+    def _init_dist_nodes(self, size, amount, alpha=1.16, lower=1., upper=None):
         s = np.random.pareto(alpha, size) + lower
         if upper != None:
             s = s[s < upper]  # kill outliers
@@ -67,12 +67,12 @@ class PosEnv:
 
     @property
     def validators(self) -> (np.array):
-        return np.array([self._agents[i].wealth for i in range(self.numValidators)])
+        return np.array([self._nodes[i].wealth for i in range(self.numNodes)])
 
     @validators.setter
     def validators(self, newValidators: np.array):
-        for i in range(self.numValidators):
-            self._agents[i].wealth = newValidators[i] - self._agents[i].cost
+        for i in range(self.numNodes):
+            self._nodes[i].wealth = newValidators[i] - self._nodes[i].validate_cost
 
     # def add_validator(self):
     #     pass
@@ -81,14 +81,14 @@ class PosEnv:
     #     pass
 
     @property
-    def cost(self):
-        return self._cost
+    def validate_cost(self):
+        return self._validate_cost
 
-    @cost.setter
-    def cost(self, new_cost):
-        self._cost = new_cost
-        for i in range(self.numValidators):
-            self._agents[i].cost = new_cost
+    @validate_cost.setter
+    def validate_cost(self, new_cost):
+        self._validate_cost = new_cost
+        for i in range(self.numNodes):
+            self._nodes[i].validate_cost = new_cost
 
     """Env"""
 
@@ -239,12 +239,12 @@ class PosEnv:
 
 if __name__ == "__main__":
     env = PosEnv(
-        10,  # numValidators
+        10,  # numNodes
         0.5,  # bondedRatio
         0.6,  # stakingRatio
         0.1,  # Inflation
         1000000000,  # TotalSupply
-        cost=0.3
+        validate_cost=0.3
     )
 
     print("")

@@ -97,6 +97,17 @@ Let's say that there's a newly minted $100$ token here:
 
 - Self-delegating is unavailable
 
+# References
+
+- Quadratic Voting
+- Quadratic Funding
+- Governor-C
+- Do the Rich Get Richer? Fairness Analysis for Blockchain Incentives
+
+## Special thanks to
+
+- Chainlink
+
 <!--
 # TODO
 
