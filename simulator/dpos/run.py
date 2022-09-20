@@ -165,6 +165,14 @@ def curses_execute(keys: list):
         amount = float(keys[1])
         env.setStakingRatio(amount)
 
+    elif key == 'v' or key == 'V':
+        amount = float(keys[1])
+        env.validate_cost = amount
+
+    elif key == 'c' or key == 'C':
+        amount = float(keys[1])
+        env.delegate_cost = amount
+
     elif key == 'p' or key == 'P':
         amount = float(keys[1])
         env.setStep(amount)
@@ -289,8 +297,6 @@ def curses_execute(keys: list):
             [nakamotoCoefs_powers, nakamotoCoefs_wealth],  # ys
             legends=["powers", "wealth"]
         )
-
-    # WIP: keys
 
 
 def curses_main():

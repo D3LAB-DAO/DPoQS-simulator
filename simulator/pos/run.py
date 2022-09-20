@@ -159,6 +159,10 @@ def curses_execute(keys: list):
         amount = float(keys[1])
         env.setStakingRatio(amount)
 
+    elif key == 'c' or key == 'C':
+        amount = float(keys[1])
+        env.cost = amount
+
     elif key == 'p' or key == 'P':
         amount = float(keys[1])
         env.setStep(amount)
@@ -286,8 +290,6 @@ def curses_execute(keys: list):
                 "nakamotoCoef"
             ]
         )
-
-    # WIP: keys
 
 
 def curses_main():
