@@ -283,11 +283,12 @@ def curses_execute(keys: list):
                 nakamotoCoefs
             ],  # ys
             legends=[
-                "nakamotoCoefs"
+                "nakamotoCoef"
             ]
         )
 
     # WIP: keys
+
 
 def curses_main():
     r = 0  # 0~2

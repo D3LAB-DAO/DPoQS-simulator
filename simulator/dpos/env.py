@@ -41,7 +41,7 @@ class DposEnv:
         if nodes is not None:
             self._nodes = nodes
         else:
-            init_is_validators, init_wealthes = self._dist_nodes(self.numNodes, self.bondedAmount)
+            init_is_validators, init_wealthes = self._init_dist_nodes(self.numNodes, self.bondedAmount)
             self._nodes: List[DposAgent] = list()
             for init_is_validator, init_wealth in zip(init_is_validators, init_wealthes):
                 self._nodes.append(
@@ -53,7 +53,7 @@ class DposEnv:
                         delegate_cost=self.delegate_cost
                     )
                 )  # TODO: commission fee & cost dist.
-        self._delegate_nodes()
+        self._init_delegate_nodes()
 
         # state
         self.Inflation = Inflation  # (%)
@@ -72,7 +72,7 @@ class DposEnv:
 
     """Nodes"""
 
-    def _dist_nodes(self, size, amount, alpha=1.16, lower=1., upper=None):
+    def _init_dist_nodes(self, size, amount, alpha=1.16, lower=1., upper=None):
         s = np.random.pareto(alpha, size) + lower
         if upper != None:
             s = s[s < upper]  # kill outliers
@@ -84,7 +84,7 @@ class DposEnv:
 
         return _is_validators, _wealthes
 
-    def _delegate_nodes(self):
+    def _init_delegate_nodes(self):
         for i in range(LIMIT_NUM_VALIDATORS, self.numNodes):
             delegate(
                 self._nodes[i],
@@ -105,7 +105,7 @@ class DposEnv:
         return [self._nodes[i].wealth for i in range(self.numNodes)]
 
     @property
-    def validators(self) -> (np.array):
+    def validators_wealth(self) -> (np.array):
         _validators = list()
         for i in range(self.numNodes):
             if self._nodes[i].is_validator:
@@ -113,7 +113,7 @@ class DposEnv:
         return np.array(_validators)
 
     @property
-    def powers(self) -> (np.array):
+    def validators_powers(self) -> (np.array):
         _power = list()
         for i in range(self.numNodes):
             if self._nodes[i].is_validator:
@@ -209,7 +209,7 @@ class DposEnv:
         # Calculate the provisions generated for each block based on current annual provisions.
         return self.NextAnnualProvision / self.BlocksPerYr
 
-    def update_powers(self, validator_rewards: np.array):
+    def _distribute_rewards(self, validator_rewards: np.array):
         j = 0
         for i in range(self.numNodes):
             if self._nodes[i].is_validator:
@@ -227,13 +227,13 @@ class DposEnv:
                 self._nodes[i].wealth -= self._nodes[i].validate_cost
 
                 # delegators
-                self._nodes[i].delegatedes += _dist[1:]
+                self._nodes[i].delegatedes += _dist[1:]  # amount
                 for d, e in enumerate(self._nodes[i]._delegatedes):
-                    e._from.wealth += _dist[d + 1]
+                    e._from.wealth += _dist[d + 1]  # real wealth
                     e._from.wealth -= e._from.delegate_cost
 
-    def _mint_validators(self, amount):
-        ratio = self.validators / sum(self.validators)
+    def _mint_powers(self, amount):
+        ratio = self.validators_powers / sum(self.validators_powers)
         return ratio * amount  # TODO: floating errors
 
     def transition(self, blocks: int):
@@ -247,8 +247,8 @@ class DposEnv:
                 [self.NextAnnualProvision],
                 [self.BlockProvision],
                 [self.nodes],
-                [self.nakamoto_coefficient_power],
-                [self.nakamoto_coefficient_validator]
+                [self.nakamoto_coefficient_powers],
+                [self.nakamoto_coefficient_wealth]
             )
 
         bondedAmounts = list()
@@ -262,7 +262,7 @@ class DposEnv:
         nakamotoCoef_power = list()
         nakamotoCoef_validator = list()
 
-        for b in range(blocks):
+        for _ in range(blocks):
             inflation = self.NextInflationRate
             annualProvision = self.NextAnnualProvision
             blockProvision = self.BlockProvision
@@ -273,9 +273,7 @@ class DposEnv:
             self.bondedAmount += _stakingAmount
             self.TotalSupply += blockProvision
             self.blockNumber += 1
-            self.update_powers(
-                np.array(self._mint_validators(_stakingAmount))
-            )
+            self._distribute_rewards(np.array(self._mint_powers(_stakingAmount)))
 
             # log
             if self.blockNumber % self.step == 0:
@@ -292,6 +290,7 @@ class DposEnv:
                 nodes.append(e[5])
                 nakamotoCoef_power.append(e[6])
                 nakamotoCoef_validator.append(e[7])
+
         return (
             bondedAmounts,
             stakingRatios,
@@ -314,16 +313,16 @@ class DposEnv:
             self.blockNumber,
 
             self.nodes,
-            self.nakamoto_coefficient_power,
-            self.nakamoto_coefficient_validator
+            self.nakamoto_coefficient_powers,
+            self.nakamoto_coefficient_wealth
         )
 
     """Fairness & Decentralization"""
 
     @property
-    def nakamoto_coefficient_power(self):
+    def nakamoto_coefficient_powers(self):
         # maybe same
-        sorted_powers = np.sort(self.powers)[::-1]
+        sorted_powers = np.sort(self.validators_powers)[::-1]
         for i in range(1, len(sorted_powers) + 1):
             # print(i, sum(sorted_powers[:i]))
             if sum(sorted_powers[:i]) > (self.bondedAmount / 3):
@@ -334,9 +333,9 @@ class DposEnv:
     # def (self):
 
     @property
-    def nakamoto_coefficient_validator(self):
-        # maybe increase
-        sorted_validators = np.sort(self.validators)[::-1]
+    def nakamoto_coefficient_wealth(self):
+        # maybe slightly decrease
+        sorted_validators = np.sort(self.validators_wealth)[::-1]
         for i in range(1, len(sorted_validators) + 1):
             # print(i, sum(sorted_validators[:i]))
             if sum(sorted_validators[:i]) > (self.bondedAmount / 3):
@@ -355,30 +354,23 @@ if __name__ == "__main__":
         delegate_cost=0.01  # delegate_cost
     )
 
-    # print(env.TotalSupply)
-    # print(env.bondedAmount)
-    print(env.nakamoto_coefficient_power)
-    print(env.nakamoto_coefficient_validator)
-    # print("-" * 40)
-    print(sum(env.powers))
-    print(sum(env.validators))
-    # print("-" * 40)
-    # print(env.nodes)
-    # print(sum(env.nodes))
-    # print("=" * 40)
-
-    env.update_powers(
-        np.array([100000000 for _ in range(len(env.validators))])
-    )
-
-    env.transition(400000)
     print("")
+    print("nakamoto_coef_powers:\t", env.nakamoto_coefficient_powers)
+    print("nakamoto_coef_wealth:\t", env.nakamoto_coefficient_wealth)
+    print("powers:\t\t\t", sum(env.validators_powers))
+    print("wealth:\t\t\t", sum(env.validators_wealth))
 
-    print(env.nakamoto_coefficient_power)
-    print(env.nakamoto_coefficient_validator)
-    print(sum(env.powers))
-    print(sum(env.validators))
-    # print("-" * 40)
-    # print(env.nodes)
-    # print(sum(env.nodes))
-    # print("=" * 40)
+    print("")
+    print("Reward Distribution", end='\r')
+    env._distribute_rewards(
+        np.array([100000000 for _ in range(len(env.validators_wealth))])
+    )  # test purpose
+    print(" " * 30, end='\r')
+    print("Transition 400000", end='\r')
+    env.transition(400000)
+    print(" " * 30, end='\r')
+
+    print("nakamoto_coef_powers:\t", env.nakamoto_coefficient_powers)
+    print("nakamoto_coef_wealth:\t", env.nakamoto_coefficient_wealth)
+    print("powers:\t\t\t", sum(env.validators_powers))
+    print("wealth:\t\t\t", sum(env.validators_wealth))

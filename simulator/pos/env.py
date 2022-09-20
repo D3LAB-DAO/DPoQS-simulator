@@ -35,7 +35,7 @@ class PosEnv:
         if agents is not None:
             self._agents = agents
         else:
-            init_wealthes = self._dist_validators(self.numValidators, self.bondedAmount)
+            init_wealthes = self._init_dist_validators(self.numValidators, self.bondedAmount)
             self._agents: List[PosAgent] = list()
             for init_wealth in init_wealthes:
                 self._agents.append(PosAgent(wealth=init_wealth, cost=cost))  # TODO: cost dist.
@@ -57,7 +57,7 @@ class PosEnv:
 
     """Validators"""
 
-    def _dist_validators(self, size, amount, alpha=1.16, lower=1., upper=None):
+    def _init_dist_validators(self, size, amount, alpha=1.16, lower=1., upper=None):
         s = np.random.pareto(alpha, size) + lower
         if upper != None:
             s = s[s < upper]  # kill outliers
@@ -247,17 +247,16 @@ if __name__ == "__main__":
         cost=0.3
     )
 
-    # print(env.validators)
-    print(sum(env.validators))
-    print(env.TotalSupply)
-    print(env.bondedAmount)
-    print(env.nakamoto_coefficient)
-
-    env.transition(400000)
     print("")
+    print("nakamoto_coef:\t", env.nakamoto_coefficient)
+    print("wealth:\t\t\t", sum(env.validators))
 
-    # print(env.validators)
-    print(sum(env.validators))
-    print(env.TotalSupply)
-    print(env.bondedAmount)
-    print(env.nakamoto_coefficient)
+    print("")
+    print("Reward Distribution", end='\r')
+    print(" " * 30, end='\r')
+    print("Transition 400000", end='\r')
+    env.transition(400000)
+    print(" " * 30, end='\r')
+
+    print("nakamoto_coef:\t", env.nakamoto_coefficient)
+    print("wealth:\t\t\t", sum(env.validators))
