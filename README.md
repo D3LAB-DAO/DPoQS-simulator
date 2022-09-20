@@ -7,18 +7,23 @@
 
 Let's say that there's a newly minted $100$ token here:
 
-* Validator 1 will receive $22.95$ tokens
-    * Delegator 1-1 ($100$) will receive $22.95$ tokens
-* Validator 2 will receive $32.45$ tokens
-    * Delegator 2-1 ($50$) will receive $16.225$ tokens
-    * Delegator 2-2 ($50$) will receive $16.225$ tokens
-* Validator 3 will receive $44.60$ tokens
-    * Delegator 3-1 ($10$) will receive $4.46$ tokens
-    * Delegator 3-2 ($20$) will receive $8.92$ tokens
-    * Delegator 3-3 ($30$) will receive $13.38$ tokens
-    * Delegator 3-4 ($40$) will receive $17.84$ tokens
+* Validator 1 will receive $100 * 10 / (10 + 14.1421 + 19.4362) = 22.95$ tokens
+    * Delegator 1-1 ($100$) will receive $22.95 * 100 / (100) = 22.95$ tokens
+* Validator 2 will receive $100 * 14.1421 / (10 + 14.1421 + 19.4362) = 32.45$ tokens
+    * Delegator 2-1 ($50$) will receive $32.45 * 50 / (50 + 50) = 16.225$ tokens
+    * Delegator 2-2 ($50$) will receive $32.45 * 50 / (50 + 50) = 16.225$ tokens
+* Validator 3 will receive $100 * 19.4362 / (10 + 14.1421 + 19.4362) = 44.60$ tokens
+    * Delegator 3-1 ($10$) will receive $44.60 * 10 / (10 + 20 + 30 + 40) = 4.46$ tokens
+    * Delegator 3-2 ($20$) will receive $44.60 * 20 / (10 + 20 + 30 + 40) = 8.92$ tokens
+    * Delegator 3-3 ($30$) will receive $44.60 * 30 / (10 + 20 + 30 + 40) = 13.38$ tokens
+    * Delegator 3-4 ($40$) will receive $44.60 * 40 / (10 + 20 + 30 + 40) = 17.84$ tokens
 
-<!-- more decentralizing -->
+<!--
+* Level 1: Distributes Quadratic
+    * Level 2: Distributes Linearly
+-->
+
+<!-- effect: more decentralizing -->
 
 ---
 

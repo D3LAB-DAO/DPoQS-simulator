@@ -88,6 +88,8 @@ class DpoqsAgent:
         for i in range(len(self._delegatedes)):
             self._delegatedes[i].amount = new_delegatedes[i]
 
+    """total"""
+
     @property
     def total_delegate(self) -> (float):
         r = 0.
@@ -95,12 +97,12 @@ class DpoqsAgent:
             r += e.amount
         return r
 
-    # @property
-    # def total_sqrt_delegate(self) -> (float):
-    #     r = 0.
-    #     for e in self._delegates:
-    #         r += sqrt(e.amount)
-    #     return r
+    @property
+    def total_sqrt_delegate(self) -> (float):
+        r = 0.
+        for e in self._delegates:
+            r += sqrt(e.amount)
+        return r
 
     @property
     def total_delegated(self) -> (float):
@@ -115,6 +117,8 @@ class DpoqsAgent:
         for e in self._delegatedes:
             r += sqrt(e.amount)
         return r
+
+    """power"""
 
     @property
     def power(self) -> (float):
@@ -145,6 +149,7 @@ def delegate(from_: DpoqsAgent, to_: DpoqsAgent, amount_: float):
 
     if from_.total_delegate > from_.wealth:
         raise ValueError
+
 
 # for AI agents
 # def undelegate():
