@@ -2,7 +2,7 @@ import numpy as np
 from random import randint
 from typing import List
 
-from agent import *
+from .agent import *
 
 
 LIMIT_NUM_VALIDATORS = 21

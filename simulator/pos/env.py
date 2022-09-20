@@ -1,7 +1,7 @@
 import numpy as np
 from typing import List
 
-from agent import *
+from .agent import *
 
 
 class PosEnv:

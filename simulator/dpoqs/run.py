@@ -47,7 +47,7 @@ def curses_status(r: int):
         curses_addstr_helper(y, 0, "numNodes", env.numNodes, prefix="    "); y += 1
         curses_addstr_helper(y, 0, "validate_cost", env.validate_cost, prefix="    "); y += 1
         curses_addstr_helper(y, 0, "delegate_cost", env.delegate_cost, prefix="    "); y += 1
-        curses_addstr_helper(y, 0, "Nakamoto Coef Powers", env.nakamoto_coefficient_power, prefix="    ", color=Color.YELLOW); y += 1
+        curses_addstr_helper(y, 0, "Nakamoto Coef Powers", env.nakamoto_coefficient_powers, prefix="    ", color=Color.YELLOW); y += 1
         curses_addstr_helper(y, 0, "Nakamoto Coef Wealth", env.nakamoto_coefficient_wealth, prefix="    ", color=Color.YELLOW); y += 1
 
     def curses_status_2_predefined():
