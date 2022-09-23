@@ -3,7 +3,10 @@ from random import randint
 from typing import List
 from math import sqrt
 
-from .agent import *
+try:
+    from .agent import *
+except(ImportError):
+    from agent import *
 
 
 LIMIT_NUM_VALIDATORS = 21

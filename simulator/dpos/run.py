@@ -79,7 +79,7 @@ def curses_help():
         y = 0
         stdscr.addstr(y, 0, "Simulator Commands", curses.color_pair(Color.CYAN.value) | curses.A_BOLD); y += 1
         curses_help_addstr_helper(y, 0, "[N]", "nextBlocks", "<#_of_blocks>", prefix="    "); y += 1
-        curses_help_addstr_helper(y, 0, "[B]", "bondedAmount", "<bonded_amount>", prefix="    "); y += 1
+        # curses_help_addstr_helper(y, 0, "[B]", "bondedAmount", "<bonded_amount>", prefix="    "); y += 1
         curses_help_addstr_helper(y, 0, "[S]", "stakingRatio", "<%_of_staking_ratio>", prefix="    "); y += 1
         curses_help_addstr_helper(y, 0, "[V]", "validate_cost", "<amount>", prefix="    "); y += 1
         curses_help_addstr_helper(y, 0, "[C]", "delegate_cost", "<amount>", prefix="    "); y += 1
@@ -157,9 +157,9 @@ def curses_execute(keys: list):
         amount = int(keys[1])
         execute_transition(amount)
 
-    elif key == 'b' or key == 'B':
-        amount = float(keys[1])
-        env.setBondedAmount(amount)
+    # elif key == 'b' or key == 'B':
+    #     amount = float(keys[1])
+    #     env.setBondedAmount(amount)
 
     elif key == 's' or key == 'S':
         amount = float(keys[1])
