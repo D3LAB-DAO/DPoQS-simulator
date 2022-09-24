@@ -112,13 +112,16 @@ Pass by 10,000,000 blocks.
 : L test
 ```
 
-Save `test_provs.csv` and `test_state.csv` files in `logs/`.
+Save `test_agents.csv`, `test_coef.csv`, `test_provs.csv` and `test_state.csv` files in `logs/`.
 
 ```
 : K test 600
 ```
 
-Save `test_provs.png` and `test_state.png` files in `plots/`.
+Save `test_agents.png`, `test_coef.png`, `test_provs.png` and `test_state.png` files in `plots/`.
+
+![dpoqs2_state](plots/dpoqs2_state.png)
+![dpoqs2_coef](plots/dpoqs2_coef.png)
 
 # References
 
